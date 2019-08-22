@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 # import pandas as pd
+from asteroid import Asteroid
 from ship import *
 # from asteroid import Asteroid
 from pygame.locals import *
@@ -24,10 +25,20 @@ AsteroidCount = 3
 Player = Ship((20, 200))
 
 
-def main():
-    global Level
+def init():
+    global AsteroidCount, Asteroids
 
-    while Level <= NumLevels:
+    Player.reset((20, 200))
+    Asteroids.empty()
+    AsteroidCount += 3
+    for i in range(AsteroidCount):
+        Asteroids.add(Asteroid((random.randint(50, width -50), random.randint(50, height - 50)), random.randint(15, 60)))
+
+
+def main():
+    init()
+
+    while True:
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -53,8 +64,16 @@ def main():
 
         Player.update()
         screen.fill(color)
+        Asteroids.update()
+        get_hits = pygame.sprite.spritecollide(Player, Asteroids, False)
+        Asteroids.draw(screen)
         screen.blit(Player.image, Player.rect)
         pygame.display.flip()
+
+        if Player.checkReset(width):
+            init()
+        elif get_hits:
+            Player.reset((20, 200))
 
 
 if __name__ == '__main__':
